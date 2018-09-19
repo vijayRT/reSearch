@@ -9,7 +9,7 @@ if not os.path.exists("indexdir"):
 ix = create_in("indexdir", schema)
 
 writer = ix.writer()
-for path, directories, files in os.walk('.\citeseer'):
+for path, directories, files in os.walk('.\data'):
     for file in files:
         filepath = os.path.join(path, file)
         with open(filepath, "r", encoding='utf-8') as f:
