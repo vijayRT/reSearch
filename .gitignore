@@ -1,7 +1,8 @@
 citeseerdata/
 citeseerindexdir/
+testindexdir/
+testresults/
 venv/
-src/test.py
 dblpfiledir/
 dblpdata/
 dblpindexdir/

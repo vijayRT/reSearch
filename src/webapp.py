@@ -1,12 +1,18 @@
 from flask import Flask
 from flask import request
-from src.searcher import search
+from searcher import searchdblp, getFileFromDir
 
 app = Flask(__name__)
 
 @app.route("/search")
 def getSearchResults():
-    return (search(request.args.get('query')))
+    return (searchdblp(request.args.get('query')))
+
+
+@app.route("/file/<filename>")
+def getFile(filename):
+    return (getFileFromDir(filename))
 
 if __name__ == "__main__":
     app.run(debug=True)
+
