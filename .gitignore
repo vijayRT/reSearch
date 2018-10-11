@@ -1,4 +1,8 @@
-data/
-indexdir/
+citeseerdata/
+citeseerindexdir/
 venv/
 src/test.py
+dblpfiledir/
+dblpdata/
+dblpindexdir/
+*.pyc

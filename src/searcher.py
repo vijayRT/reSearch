@@ -26,6 +26,7 @@ def search(queryString):
                 filecontents = f.read()
                 subresult[str(documentNumber)] = {
                     "title": hit['title'],
+                    "path": os.path.join("http://127.0.0.1:5000/file", filepath),
                     "highlights": [x.replace("\n", " ") for x in ("".join(hit.highlights("content", filecontents)).split("~"))]
                 }
                 documentNumber += 1
