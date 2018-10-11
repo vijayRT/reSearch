@@ -1,4 +1,4 @@
-# IRWhoosh
+# re-Search
 
 Project for MSc CS course 538: Information Retrieval
 
