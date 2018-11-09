@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 import os
 import json
 from secrets import randbelow
+from graph_tool.all import *
 def constructDiGraph():
     G = nx.DiGraph()
-
     cwd = os.path.dirname(os.path.realpath(__file__))
     dataDirPath = os.path.join(cwd, os.path.pardir, "dblpfiledir")
     for path, directories, files in os.walk(dataDirPath):
@@ -14,7 +14,7 @@ def constructDiGraph():
             if os.path.getsize(filepath) > 0:
                 with open(filepath, "r", encoding='utf-8') as f:
                     jsonobj = json.load(f)
-                    id = jsonobj['id']
+                    id = jsonobj['index']
                     for reference in jsonobj['references']:
                         G.add_edge(reference, id)
     nx.draw(G, with_labels=False)

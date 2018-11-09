@@ -24,7 +24,7 @@ def searchciteseer(queryString):
             with open(filepath, "r", encoding="utf-8") as f:
                 subresult = {}
                 filecontents = f.read()
-                subresult[str(documentNumber)] = {
+                subresult = {
                     "title": hit['title'],
                     "path": os.path.join("http://127.0.0.1:5000/file", filepath),
                     "highlights": [x.replace("\n", " ") for x in ("".join(hit.highlights("content", filecontents)).split("~"))]
@@ -35,7 +35,7 @@ def searchciteseer(queryString):
 
 def searchdblp(queryString):
     cwd = os.path.dirname(os.path.realpath(__file__))
-    indexDirPath = os.path.join(cwd, os.path.pardir, "dblpindexdir")
+    indexDirPath = os.path.join(cwd, os.path.pardir, "acmindexdir")
     dataDirPath = os.path.join(cwd, os.path.pardir, "dblpfiledir")
     ix = open_dir(indexDirPath)
     documentNumber = 1
@@ -52,11 +52,14 @@ def searchdblp(queryString):
             filepath = os.path.join(dataDirPath, filename)
             with open(filepath, "r", encoding="utf-8") as f:
                 subresult = {}
-                filecontents = json.load(f)['abstract']
-                subresult[str(documentNumber)] = {
+                jsonfile = json.load(f)
+                filecontents = jsonfile['abstract']
+                pagerank = jsonfile['pagerank']
+                subresult = {
                     "title": hit['title'],
                     "path": "http://127.0.0.1:5000/file/" + hit["path"],
-                    "highlights": [x.replace("\n", " ") for x in ("".join(hit.highlights("content", filecontents)).split("~"))]
+                    "highlights": [x.replace("\n", " ") for x in ("".join(hit.highlights("content", filecontents)).split("~"))],
+                    "pagerank": pagerank
                 }
                 documentNumber += 1
                 finalresults["documents"].append(subresult)

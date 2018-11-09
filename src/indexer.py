@@ -32,9 +32,14 @@ def dblpindex():
     dataDirPath = os.path.join(cwd, os.path.pardir, "dblpdata")
     if not os.path.exists(indexDirPath):
         os.mkdir(indexDirPath)
+    counter = 0
     filedir = os.path.join(cwd, os.path.pardir, "dblpfiledir")
+
+
     ix = create_in(indexDirPath, schema)
-    writer = ix.writer()
+    writer = ix.writer(procs=4, limitmb=256, multisegment=True)
+
+
     for path, directories, files in os.walk(dataDirPath):
         for file in files:
             filepath = os.path.join(path, file)
@@ -56,9 +61,32 @@ def dblpindex():
                             }
                             writer.add_document(title=jsonline['title'], path=jsonline['id'], content=jsonline['abstract'])
                             json.dump(modifiedjson, m, indent=4)
-                            print('Success')
+                            counter+=1
+                            print(counter, 'Success')
                         except Exception as e:
                             print(str(e))
     writer.commit()
 
-dblpindex()
+def acmindex():
+    cwd = os.path.dirname(os.path.realpath(__file__))
+    indexDirPath = os.path.join(cwd, os.path.pardir, "acmindexdir")
+    dataDirPath = os.path.join(cwd, os.path.pardir, "dblpfiledir")
+    if not os.path.exists(indexDirPath):
+        os.mkdir(indexDirPath)
+    counter = 0
+
+    schema = Schema(title=TEXT(stored=True, field_boost=3.0), path=ID(stored=True), author=TEXT, content=TEXT)
+    ix = create_in(indexDirPath, schema)
+    writer = ix.writer(procs=4, limitmb=256, multisegment=True)
+
+    for path, directories, files in os.walk(dataDirPath):
+        for file in files:
+            filepath = os.path.join(path, file)
+            with open(filepath, "r", encoding='utf-8') as f:
+                jsonline = json.load(f)
+                writer.add_document(title=jsonline['title'], path=jsonline['index'], content=jsonline['abstract'])
+                counter+=1
+                print(counter, 'Success')
+    writer.commit()
+
+acmindex()

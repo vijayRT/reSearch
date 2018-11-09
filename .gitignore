@@ -7,3 +7,13 @@ dblpfiledir/
 dblpdata/
 dblpindexdir/
 *.pyc
+.vscode/
+acmindexdir/
+citeseerfasttext.model
+env/
+fasttext.model
+icse_id.txt
+outputacm.txt
+sigmod_id.txt
+vldb_id.txt
+src/.vscode/
