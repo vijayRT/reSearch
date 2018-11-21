@@ -17,3 +17,5 @@ outputacm.txt
 sigmod_id.txt
 vldb_id.txt
 src/.vscode/
+model.bin
+trainingclassifier.txt

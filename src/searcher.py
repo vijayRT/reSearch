@@ -3,6 +3,7 @@ from whoosh.highlight import UppercaseFormatter
 import json
 import os
 from whoosh.qparser import QueryParser
+from altword import getSimilarWords
 
 
 def searchciteseer(queryString):
@@ -43,6 +44,11 @@ def searchdblp(queryString):
         "searchTerm": queryString,
         "documents": []
     }
+    similarwords = getSimilarWords(queryString)
+    queries = []
+    queries.append(queryString)
+    for similarword in similarwords:
+        queries.append(similarwords[0])
     with ix.searcher() as searcher:
         query = QueryParser("content", schema=ix.schema).parse(queryString)
         results = searcher.search(query)
