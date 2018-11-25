@@ -57,7 +57,7 @@ def constructModelFromCiteseer():
 def getSimilarWords(word):
     stemmer = Stemmer.Stemmer("english")
     modelF = FastText.load("./citeseerfasttext.model")
-    print(modelF.wv.most_similar(stemmer.stemWord(word)))
+    return modelF.wv.most_similar(stemmer.stemWord(word))
     #print(modelF.wv.most_similar(word))
 
 def scantree(path):

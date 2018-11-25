@@ -4,96 +4,118 @@ import json
 import os
 from whoosh.qparser import QueryParser
 from altword import getSimilarWords
+import autocomplete
+from spellchecker import SpellChecker
+from gensim.models.doc2vec import Doc2Vec
+
+class Search:
+    def __init__(self):
+        cwd = os.path.dirname(os.path.realpath(__file__))
+        indexDirPath = os.path.join(cwd, os.path.pardir, "acmindexdir")
+        self.dataDirPath = os.path.join(cwd, os.path.pardir, "dblpfiledir")
+        self.ix = open_dir(indexDirPath)
+        self.spell = SpellChecker(distance=1)
+
+    def searchdblp(self, userquery):
+        documentNumber = 1
+        finalresults = {
+            "searchTerm": userquery,
+            "searchquerydocuments": [],
+            "relatedquerydocuments": []
+        }
+
+        similarwords = getSimilarWords(userquery)
+        queries = []
+        queries.append(userquery)
+        for similarword in similarwords:
+            queries.append(similarword[0])
+
+        with self.ix.searcher() as searcher:
+            queryparser = QueryParser("content", schema=self.ix.schema)
+            for queryString in queries:
+                parsedquery = queryparser.parse(queryString)
+
+                if queryString == queries[0]:
+                    corrected = searcher.correct_query(parsedquery, queryString)
+                    print(corrected.string)
+                    if corrected.query != parsedquery:
+                        print("Did you mean:", corrected.string)
+
+                results = searcher.search(parsedquery)
+                results.formatter = UppercaseFormatter(between="~")
+
+                for hit in results:
+                    filename = hit["path"] + ".json"
+                    filepath = os.path.join(self.dataDirPath, filename)
+                    with open(filepath, "r", encoding="utf-8") as f:
+                        subresult = {}
+                        jsonfile = json.load(f)
+                        filecontents = jsonfile['abstract']
+                        pagerank = jsonfile['pagerank']
+                        category = jsonfile['category']
+                        subresult = {
+                            "title": hit['title'],
+                            "path": "http://127.0.0.1:5000/file/" + hit["path"],
+                            "highlights": ' ... '.join([x.replace("\n", " ") for x in ("".join(hit.highlights("content", filecontents)).split("~"))]),
+                            "pagerank": pagerank,
+                            "category": category
+                        }
+                        documentNumber += 1
+                        if(queryString == userquery):
+                            finalresults["searchquerydocuments"].append(subresult)
+                        else:
+                            finalresults["relatedquerydocuments"].append(subresult)
+        return json.dumps(finalresults, indent=4)
 
 
-def searchciteseer(queryString):
-    cwd = os.path.dirname(os.path.realpath(__file__))
-    indexDirPath = os.path.join(cwd, os.path.pardir, "indexdir")
-    dataDirPath = os.path.join(cwd, os.path.pardir)
-    ix = open_dir(indexDirPath)
-    documentNumber = 1
-    finalresults = {
-        "searchTerm": queryString,
-        "documents": []
-    }
-    with ix.searcher() as searcher:
-        query = QueryParser("content", schema=ix.schema).parse(queryString)
-        results = searcher.search(query)
-        results.formatter = UppercaseFormatter(between="~")
-        for hit in results:
-            filepath = os.path.join(dataDirPath, hit["path"])
-            with open(filepath, "r", encoding="utf-8") as f:
-                subresult = {}
-                filecontents = f.read()
-                subresult = {
-                    "title": hit['title'],
-                    "path": os.path.join("http://127.0.0.1:5000/file", filepath),
-                    "highlights": [x.replace("\n", " ") for x in ("".join(hit.highlights("content", filecontents)).split("~"))]
-                }
-                documentNumber += 1
-                finalresults["documents"].append(subresult)
-    return json.dumps(finalresults, indent=4)
+    def getFileFromDir(self, filename):
+        filename = filename + ".json"
+        filecontents = ""
+        filepath = os.path.join(self.dataDirPath, filename)
+        with open(filepath, "r", encoding="utf-8") as f:
+            jsonobj = json.load(f)
+            referencetitleslist = []
+            for reference in jsonobj['references']:
+                referencefilename = reference + ".json"
+                referencefilepath = os.path.join(self.dataDirPath, referencefilename)
+                with open(referencefilepath, "r", encoding="utf-8") as referencefile:
+                    fileread = referencefile.read()
+                    print(referencefilepath, len(fileread))
+                    if len(fileread) > 0:
+                        referenceObj = json.loads(fileread)
+                        referencedata = {
+                            "title": referenceObj['title'],
+                            "path": "http://127.0.0.1:5000/file/" + reference
+                        }
+                        referencetitleslist.append(referencedata)
+            jsonobj['references'] = referencetitleslist
+            filecontents = json.dumps(jsonobj)
+        return filecontents
+    
+    def getSimilarDocuments(self, fileid):
+        d2v_model = Doc2Vec.load("./d2vmodel.bin")
+        similardoctuple = d2v_model.docvecs.most_similar(fileid)
+        similardocs = []
+        for similardocitem in similardoctuple:
+            similardocs.append(similardocitem[0])
 
-def searchdblp(queryString):
-    cwd = os.path.dirname(os.path.realpath(__file__))
-    indexDirPath = os.path.join(cwd, os.path.pardir, "acmindexdir")
-    dataDirPath = os.path.join(cwd, os.path.pardir, "dblpfiledir")
-    ix = open_dir(indexDirPath)
-    documentNumber = 1
-    finalresults = {
-        "searchTerm": queryString,
-        "documents": []
-    }
-    similarwords = getSimilarWords(queryString)
-    queries = []
-    queries.append(queryString)
-    for similarword in similarwords:
-        queries.append(similarwords[0])
-    with ix.searcher() as searcher:
-        query = QueryParser("content", schema=ix.schema).parse(queryString)
-        results = searcher.search(query)
-        results.formatter = UppercaseFormatter(between="~")
-        for hit in results:
-            filename = hit["path"] + ".json"
-            filepath = os.path.join(dataDirPath, filename)
+        finalresults = {
+            "searchquerydocuments": []
+        }
+        for docid in similardocs:
+            filepath = os.path.join(self.dataDirPath, docid + ".json")
             with open(filepath, "r", encoding="utf-8") as f:
                 subresult = {}
                 jsonfile = json.load(f)
                 filecontents = jsonfile['abstract']
                 pagerank = jsonfile['pagerank']
+                category = jsonfile['category']
                 subresult = {
-                    "title": hit['title'],
-                    "path": "http://127.0.0.1:5000/file/" + hit["path"],
-                    "highlights": [x.replace("\n", " ") for x in ("".join(hit.highlights("content", filecontents)).split("~"))],
-                    "pagerank": pagerank
+                    "title": jsonfile['title'],
+                    "path": "http://127.0.0.1:5000/file/" + jsonfile["index"],
+                    "highlights": jsonfile["abstract"][:100] + '...',
+                    "pagerank": pagerank,
+                    "category": category
                 }
-                documentNumber += 1
-                finalresults["documents"].append(subresult)
-    return json.dumps(finalresults, indent=4)
-
-
-def getFileFromDir(filename):
-    cwd = os.path.dirname(os.path.realpath(__file__))
-    dataDirPath = os.path.join(cwd, os.path.pardir, "dblpfiledir")
-    filename = filename + ".json"
-    filecontents = ""
-    filepath = os.path.join(dataDirPath, filename)
-    with open(filepath, "r", encoding="utf-8") as f:
-        jsonobj = json.load(f)
-        referencetitleslist = []
-        for reference in jsonobj['references']:
-            referencefilename = reference + ".json"
-            referencefilepath = os.path.join(dataDirPath, referencefilename)
-            with open(referencefilepath, "r", encoding="utf-8") as referencefile:
-                fileread = referencefile.read()
-                print(referencefilepath, len(fileread))
-                if len(fileread) > 0:
-                    referenceObj = json.loads(fileread)
-                    referencedata = {
-                        "title": referenceObj['title'],
-                        "path": "http://127.0.0.1:5000/file/" + reference
-                    }
-                    referencetitleslist.append(referencedata)
-        jsonobj['references'] = referencetitleslist
-        filecontents = json.dumps(jsonobj)
-    return filecontents
+                finalresults["searchquerydocuments"].append(subresult)
+        return json.dumps(finalresults, indent=4)

@@ -19,3 +19,7 @@ vldb_id.txt
 src/.vscode/
 model.bin
 trainingclassifier.txt
+d2vmodel.bin
+d2vmodel.bin.docvecs.vectors_docs.npy
+smalldblpfiledir/
+
