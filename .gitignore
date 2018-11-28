@@ -22,4 +22,9 @@ trainingclassifier.txt
 d2vmodel.bin
 d2vmodel.bin.docvecs.vectors_docs.npy
 smalldblpfiledir/
-
+.ipynb_checkpoints
+Project Presentation.pdf
+Project Presentation.slides.html
+gtvsnx.png
+intelligentciteseerfasttext.model
+wordoccurence.png

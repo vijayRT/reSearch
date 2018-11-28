@@ -2,7 +2,7 @@ from whoosh.index import open_dir
 from whoosh.highlight import UppercaseFormatter
 import json
 import os
-from whoosh.qparser import QueryParser
+from whoosh.qparser import QueryParser, MultifieldParser
 from altword import getSimilarWords
 import autocomplete
 from spellchecker import SpellChecker
