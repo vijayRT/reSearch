@@ -44,5 +44,6 @@ class TermParser:
             countlist.append(value)
             print(key, value)
         plt.barh(wordlist[10:0:-1], countlist[10:0:-1])
-
+        plt.xlabel("Word Count")
+        plt.ylabel("Words")
         plt.show()

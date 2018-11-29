@@ -14,6 +14,7 @@ class Search:
         indexDirPath = os.path.join(cwd, os.path.pardir, "acmindexdir")
         self.dataDirPath = os.path.join(cwd, os.path.pardir, "dblpfiledir")
         self.ix = open_dir(indexDirPath)
+        self.d2v_model = Doc2Vec.load("./d2vmodel.bin")
         self.spell = SpellChecker(distance=1)
 
     def searchdblp(self, userquery):
@@ -24,7 +25,7 @@ class Search:
             "relatedquerydocuments": []
         }
 
-        similarwords = getSimilarWords(userquery)
+        similarwords = getSimilarWords(userquery.replace('"', '').replace(" ", ""))
         queries = []
         queries.append(userquery)
         for similarword in similarwords:
@@ -93,8 +94,7 @@ class Search:
         return filecontents
     
     def getSimilarDocuments(self, fileid):
-        d2v_model = Doc2Vec.load("./d2vmodel.bin")
-        similardoctuple = d2v_model.docvecs.most_similar(fileid)
+        similardoctuple = self.d2v_model.docvecs.most_similar(fileid)
         similardocs = []
         for similardocitem in similardoctuple:
             similardocs.append(similardocitem[0])

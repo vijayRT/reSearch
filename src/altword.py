@@ -86,5 +86,5 @@ def cleanuptext(text):
     sentences = [w for w in sentences if w.isalpha()]
     return sentences
 
-constructModelFromCiteseer()
-print(getSimilarWords("intelligence"))
+#constructModelFromCiteseer()
+#print(getSimilarWords("graphics"))
