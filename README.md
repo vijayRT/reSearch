@@ -2,10 +2,14 @@
 
 Project for MSc CS course 538: Information Retrieval
 
-## Setup
+Search engine for indexing, searching, and retrieval of ~1 million academic research papers. (thus the name)
 
-1) Clone repository
-2) In root of repo, run `pip install -r requirements.txt`
-3) Download data files into a folder named "data" in the root of the directory
-4) Run `indexer.py`
-5) Run `searcher.py`
+Dataset used: ACM Research Corpus
+
+## Libraries used and concepts implemented:
+* Used [Whoosh](https://whoosh.readthedocs.io/en/latest/intro.html) for indexing and searching
+* Implemented PageRank using [graph-tool](https://graph-tool.skewed.de/)
+* Performed Word embedding using [FastText](https://fasttext.cc/) 
+* Used scikit-learn to cluster similar research papers
+* Flask to use the search engine as an API, served through a [frontend](https://github.com/vijayRT/re-SearchVue) written using Vue.js
+
