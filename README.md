@@ -4,7 +4,7 @@ Project for MSc CS course 538: Information Retrieval
 
 Search engine for indexing, searching, and retrieval of ~1 million academic research papers. (thus the name)
 
-Dataset used: ACM Research Corpus
+Dataset used: [AMiner DBLP Citation Network](https://aminer.org/citation)
 
 ## Libraries used and concepts implemented:
 * Used [Whoosh](https://whoosh.readthedocs.io/en/latest/intro.html) for indexing and searching
