@@ -13,3 +13,4 @@ Dataset used: [AMiner DBLP Citation Network](https://aminer.org/citation)
 * Used scikit-learn to cluster similar research papers
 * Flask to use the search engine as an API, served through a [frontend](https://github.com/vijayRT/re-SearchVue) written using Vue.js
 
+![](https://i.imgur.com/124oLuZ.png)
