@@ -27,7 +27,7 @@ mkl-fft==1.0.6
 mkl-random==1.0.2
 networkx==2.2
 nltk==3.4.5
-numpy==1.15.4
+numpy==1.22.0
 pandas==0.23.4
 pycairo==1.16.3
 pygobject==3.28.3
